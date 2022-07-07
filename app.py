@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import glob
 import xlwings as xw
-import openpyxl
+import uuid
 from operator import add
 from flask import Flask, render_template, request
 from flask_dropzone import Dropzone
@@ -23,7 +23,8 @@ app.config.update(
 
 dropzone = Dropzone(app)
 
-# UUID when uploading
+# each user gets a UUID when visiting/uploading
+user = uuid.uuid4()
 
 
 @app.route('/', methods=['POST', 'GET'])
