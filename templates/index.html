@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>EHS Weekly Inspection</title>
+  {{ dropzone.load_css() }}
+  {{ dropzone.style('border: 2px dashed #0087F7; font-family:sans-serif; border-radius:25px; position:relative; float:bottom; margin:0% 10%; min-height: 300px;') }}
+</head>
+
+<body>
+  <br><br><br><br>
+  <div style="color:black;text-align:center;border:none;font-family:sans-serif;">
+    <img src="https://www.atw.com/wp-content/uploads/2018/09/atw_core_logo_rgb_small_200px-TM.png" alt="atw-logo"> <br>
+    <h2>Upload weekly EHS inspection spreadsheets using the box below.</h2> <br>
+    <h3>
+      Files must: <br>
+      Be an Excel file format (.xlsx or .xls) <br>
+      Have "Issue Count" as the column heading in cell B1 <br>
+    </h3>
+    When you finish selecting files, click Submit to download the output file.
+  </div><br><br>
+  {{ dropzone.create(action='upload') }}
+  {{ dropzone.load_js() }}
+  {{ dropzone.config() }}
+  <br><br>
+  <div style="text-align:center">
+    <form action="/combine/" method="post">
+      <button name="combineBtn" type="submit">Submit</button><br><br>
+      <button name="combineBtn" type="button">Download</button>
+    </form><br>
+    <div style="text-align:center;font-family:sans-serif;">
+      {{ message }}
+    </div>
+  </div>
+
+
+</body>
+
+</html>
