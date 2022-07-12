@@ -1,11 +1,10 @@
 # import dependencies
-from fileinput import filename
 import os
 import pandas as pd
 import glob
 import uuid
 from operator import add
-from flask import Flask, render_template, request, send_from_directory
+from flask import Flask, render_template, request, send_file
 from flask_dropzone import Dropzone
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -16,9 +15,9 @@ user = str(userid)
 
 
 # flask app init and configuration
-app = Flask(__name__)
+app = Flask(__name__, static_folder='uploads')
 app.config.update(
-    UPLOADED_PATH=os.path.join(basedir, 'uploads/' + user),
+    UPLOAD_FOLDER=os.path.join(basedir, 'uploads/' + user),
     DROPZONE_MAX_FILE_SIZE=10000,
     DROPZONE_TIMEOUT=60*60*1000,
     DROPZONE_ALLOWED_FILE_CUSTOM=True,
@@ -37,7 +36,7 @@ def upload():
         if not os.path.exists(user_dir):
             os.makedirs(user_dir)
         f = request.files.get('file')
-        f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
+        f.save(os.path.join(app.config['UPLOAD_FOLDER'], f.filename))
     return render_template('index.html')
 
 
@@ -46,7 +45,7 @@ def combine():
     # Combine code
 
     # pull Excel files from Uploads folder & store in file_list
-    file_list = glob.glob(os.path.join(app.config['UPLOADED_PATH'], "*.xlsx"))
+    file_list = glob.glob(os.path.join(app.config['UPLOAD_FOLDER'], "*.xlsx"))
 
     overall_counts = [0, 0, 0, 0, 0, 0, 0, 0, 0,
                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -81,7 +80,8 @@ def combine():
     shutil.copy('Flask/ehs-inspection-combine/output/Pareto Output.xlsx',
                 'Flask/ehs-inspection-combine/uploads/'+user+'/Pareto Output - '+user+'.xlsx')
     # assign user's output file (filepath string)
-    output_file = 'Flask/ehs-inspection-combine/uploads/' + \
+    global output_file
+    output_file = 'uploads/' + \
         user+'/Pareto Output - '+user+'.xlsx'
 
     # select output file and set Issue Counts column
@@ -90,21 +90,30 @@ def combine():
     output_file_df['Issue Count'] = overall_counts
 
     # write dataframe to user output file
-    with pd.ExcelWriter(output_file, mode='a', if_sheet_exists="replace") as writer:
-        output_file_df.to_excel(writer, sheet_name='Data')
+    with pd.ExcelWriter('Flask/ehs-inspection-combine/uploads/'+user+'/Pareto Output - '+user+'.xlsx', mode='a', if_sheet_exists="replace") as writer:
+        output_file_df.to_excel(writer, sheet_name='Data', index=False)
 
     message = "Counts totaled from " + \
         str(len(file_list)) + " files, click Download to download output file."
-    return render_template('index.html', message=message)
+    return render_template('index.html', message=message), output_file
 
 
-# routing for output download
-# @app.route('/download/', methods=['POST', 'GET'])
-# def download():
+# routing for output file download
+
+@app.route('/download')
+def download():
+    path = output_file
+    return send_file(path, as_attachment=True)
+
+# @app.route('/download/<path:output_file>', methods=['GET', 'POST'])
+# def download(output_file):
 #     message = 'Downloading output file.'
-#     return send_file(
-#         filename_or_fp='Flask/ehs-inspection-combine/uploads/'+user+'/Pareto Output - '+user+'.xlsx',
-#         download_name='Pareto Output.xlsx',
+#     output_dir = 'Flask/ehs-inspection-combine/uploads/' + \
+#         user
+
+#     return send_from_directory(
+#         output_dir,
+#         filename=output_file,
 #         as_attachment=True
 #     ), render_template('index.html', message=message)
 

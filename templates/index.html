@@ -28,9 +28,8 @@
     <form action="/combine/" method="post">
       <button name="combineBtn" type="submit">Submit</button><br>
     </form><br>
-    <form action="/download/" method="get">
-      <button name="downloadBtn" type="submit">Download</button>
-    </form><br>
+    
+    <a class="btn btn-success" href="{{ url_for('download') }}">Download</a><br><br>
     <div style="text-align:center;font-family:sans-serif;">
       {{ message }}
     </div>
