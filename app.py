@@ -119,7 +119,7 @@ def download():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
 
 # TODO
 # download file on button click working
