@@ -1,3 +1,4 @@
 Flask
 pandas
 flask_dropzone
+gunicorn
